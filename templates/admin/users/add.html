@@ -1,0 +1,362 @@
+{% extends "admin/layouts/base.html" %}
+
+{% block title %}Add User | Master Admin Panel{% endblock %}
+
+{% block nav_users %}active{% endblock %}
+
+{% block breadcrumbs %}
+<a href="/admin/">Home</a> &rsaquo; <a href="/admin/users/">Users Management</a> &rsaquo; <span>Add User</span>
+{% endblock %}
+
+{% block content %}
+<!-- Page Heading -->
+<div class="page-heading-row">
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--django-primary), var(--django-header-bg)); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+            <i class="fa-solid fa-user-plus"></i>
+        </div>
+        <div>
+            <h1 class="page-title" style="margin-bottom: 2px;">Create New User</h1>
+            <div style="font-size: 12px; color: var(--text-muted);">Add a new administrator or member to the platform</div>
+        </div>
+    </div>
+    <a href="/admin/users/" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 7px 14px; background: #f1f5f9; border-radius: 4px; border: 1px solid var(--border-dark);">
+        <i class="fa-solid fa-arrow-left"></i> Back to Users List
+    </a>
+</div>
+
+<!-- Messages Display -->
+{% if messages %}
+<div style="margin-bottom: 20px;">
+    {% for message in messages %}
+    <div style="padding: 12px 16px; border-radius: 4px; margin-bottom: 10px; font-size: 13px; display: flex; align-items: center; gap: 10px; {% if message.tags == 'success' %}background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46;{% elif message.tags == 'error' %}background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b;{% else %}background-color: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af;{% endif %}">
+        {% if message.tags == 'success' %}
+        <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 15px;"></i>
+        {% elif message.tags == 'error' %}
+        <i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 15px;"></i>
+        {% else %}
+        <i class="fa-solid fa-circle-info" style="color: #3b82f6; font-size: 15px;"></i>
+        {% endif %}
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form method="post" action="{% url 'custom_admin_user_add' %}" enctype="multipart/form-data" id="user-add-form">
+    {% csrf_token %}
+
+    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; margin-bottom: 24px;">
+
+        <!-- Left Column: Personal & Organization Details -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
+                <div style="background-color: var(--django-breadcrumbs-bg); color: #ffffff; padding: 12px 18px; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em;">
+                    <i class="fa-solid fa-id-badge" style="color: var(--django-accent-gold);"></i>
+                    <span>Account Information</span>
+                </div>
+
+                <div style="padding: 20px;">
+                    <!-- Username Field -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; text-transform: uppercase;">
+                            Username <span style="color: #ef4444;">*</span>
+                        </label>
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <i class="fa-solid fa-at" style="position: absolute; left: 12px; color: #94a3b8; font-size: 13px;"></i>
+                            <input type="text" name="username" value="{{ request.POST.username|default:'' }}" required placeholder="e.g. johndoe" style="width: 100%; padding: 9px 12px 9px 34px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc; font-weight: 600;">
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</div>
+                    </div>
+
+                    <!-- Email Field (MANDATORY) -->
+                    <div style="margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                            <label style="font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; margin: 0;">
+                                Email Address <span style="color: #ef4444;">*</span>
+                            </label>
+                            <span style="font-size: 10px; background-color: #fee2e2; color: #b91c1c; padding: 2px 6px; border-radius: 3px; font-weight: 700; text-transform: uppercase;">Mandatory</span>
+                        </div>
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <i class="fa-solid fa-envelope" style="position: absolute; left: 12px; color: #94a3b8; font-size: 13px;"></i>
+                            <input type="email" name="email" value="{{ request.POST.email|default:'' }}" required placeholder="e.g. user@example.com" style="width: 100%; padding: 9px 12px 9px 34px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc; font-weight: 600;">
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">Mandatory field for system communications and password recovery.</div>
+                    </div>
+
+                    <!-- Names -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">
+                                First Name <span style="font-size: 10px; color: var(--text-dim); font-weight: normal;">(Optional)</span>
+                            </label>
+                            <input type="text" name="first_name" value="{{ request.POST.first_name|default:'' }}" placeholder="First name" style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">
+                                Last Name <span style="font-size: 10px; color: var(--text-dim); font-weight: normal;">(Optional)</span>
+                            </label>
+                            <input type="text" name="last_name" value="{{ request.POST.last_name|default:'' }}" placeholder="Last name" style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc;">
+                        </div>
+                    </div>
+
+                    <!-- Company Name (Optional) -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">
+                            Company Name <span style="font-size: 10px; color: var(--text-dim); font-weight: normal;">(Optional)</span>
+                        </label>
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <i class="fa-solid fa-building" style="position: absolute; left: 12px; color: #94a3b8; font-size: 13px;"></i>
+                            <input type="text" name="company_name" value="{{ request.POST.company_name|default:'' }}" placeholder="e.g. Acme Corporation" style="width: 100%; padding: 9px 12px 9px 34px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc;">
+                        </div>
+                    </div>
+
+                    <!-- Phone Number (Optional) -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">
+                            Phone Number <span style="font-size: 10px; color: var(--text-dim); font-weight: normal;">(Optional)</span>
+                        </label>
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <i class="fa-solid fa-phone" style="position: absolute; left: 12px; color: #94a3b8; font-size: 13px;"></i>
+                            <input type="text" name="phone" value="{{ request.POST.phone|default:'' }}" placeholder="e.g. +1 555 123 4567" style="width: 100%; padding: 9px 12px 9px 34px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc;">
+                        </div>
+                    </div>
+
+                    <!-- Profile Image (Optional) -->
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">
+                            Profile Image <span style="font-size: 10px; color: var(--text-dim); font-weight: normal;">(Optional)</span>
+                        </label>
+                        <div style="background-color: #f8fafc; border: 1px dashed var(--border-dark); border-radius: 6px; padding: 14px; display: flex; align-items: center; gap: 14px;">
+                            <div style="width: 52px; height: 52px; border-radius: 50%; background-color: #e2e8f0; color: #64748b; font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border: 2px solid var(--border-dark);">
+                                <i class="fa-solid fa-user" id="avatarIcon"></i>
+                                <img id="avatarImg" src="" alt="Preview" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div>
+                                <label for="avatarFileInput" style="background-color: #ffffff; border: 1px solid var(--border-dark); padding: 5px 12px; border-radius: 4px; font-size: 11.5px; font-weight: 600; color: var(--django-primary); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin: 0;">
+                                    <i class="fa-solid fa-upload"></i> Choose Photo
+                                </label>
+                                <input type="file" name="avatar" id="avatarFileInput" accept="image/*" style="display: none;">
+                                <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">PNG, JPG, WEBP up to 5MB</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Password & Permissions -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+
+            <!-- Password & Auto Generate Box -->
+            <div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
+                <div style="background-color: var(--django-breadcrumbs-bg); color: #ffffff; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em;">
+                        <i class="fa-solid fa-key" style="color: var(--django-accent-gold);"></i>
+                        <span>Security & Password</span>
+                    </div>
+                </div>
+
+                <div style="padding: 20px;">
+                    
+                    <!-- Auto-Generate Password Callout -->
+                    <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1px solid #a7f3d0; border-radius: 6px; padding: 14px; margin-bottom: 18px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div style="font-weight: 700; font-size: 12px; color: #065f46; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-wand-magic-sparkles" style="color: #059669;"></i>
+                                <span>Auto Generate Password</span>
+                            </div>
+                            <button type="button" id="btnAutoGenerate" style="background-color: #059669; color: #ffffff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: background 0.2s;">
+                                <i class="fa-solid fa-arrows-rotate"></i> Generate Now
+                            </button>
+                        </div>
+                        
+                        <!-- Generated Password Pill (Hidden initially) -->
+                        <div id="generatedPassBox" style="display: none; background: #ffffff; border: 1px solid #6ee7b7; border-radius: 4px; padding: 8px 12px; align-items: center; justify-content: space-between; margin-top: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 11px; color: #065f46; font-weight: 600;">Generated:</span>
+                                <code id="generatedPassText" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #047857; background: #ecfdf5; padding: 2px 6px; border-radius: 3px;"></code>
+                            </div>
+                            <button type="button" id="btnCopyGenerated" style="background: transparent; border: 1px solid #10b981; color: #059669; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 3px; cursor: pointer;">
+                                <i class="fa-solid fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; text-transform: uppercase;">
+                            Password <span style="color: #ef4444;">*</span>
+                        </label>
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <i class="fa-solid fa-lock" style="position: absolute; left: 12px; color: #94a3b8; font-size: 13px;"></i>
+                            <input type="password" name="password" id="id_password" required placeholder="Minimum 6 characters" style="width: 100%; padding: 9px 36px 9px 34px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc;">
+                            <i class="fa-regular fa-eye password-toggle-btn" data-target="id_password" style="position: absolute; right: 12px; color: #94a3b8; cursor: pointer; font-size: 13px;"></i>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; text-transform: uppercase;">
+                            Confirm Password <span style="color: #ef4444;">*</span>
+                        </label>
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <i class="fa-solid fa-circle-check" style="position: absolute; left: 12px; color: #94a3b8; font-size: 13px;"></i>
+                            <input type="password" name="confirm_password" id="id_confirm_password" required placeholder="Re-enter password" style="width: 100%; padding: 9px 36px 9px 34px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc;">
+                            <i class="fa-regular fa-eye password-toggle-btn" data-target="id_confirm_password" style="position: absolute; right: 12px; color: #94a3b8; cursor: pointer; font-size: 13px;"></i>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Role & Permissions Box -->
+            <div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
+                <div style="background-color: var(--django-breadcrumbs-bg); color: #ffffff; padding: 12px 18px; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em;">
+                    <i class="fa-solid fa-user-gear" style="color: var(--django-accent-gold);"></i>
+                    <span>Permissions & Status</span>
+                </div>
+
+                <div style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;">
+                    
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                        <input type="checkbox" name="is_active" checked style="accent-color: var(--django-primary); width: 16px; height: 16px; margin-top: 2px;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 12.5px; color: #334155;">Active Account</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Designates whether this user should be treated as active.</div>
+                        </div>
+                    </label>
+
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                        <input type="checkbox" name="is_staff" style="accent-color: var(--django-primary); width: 16px; height: 16px; margin-top: 2px;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 12.5px; color: #334155;">Staff Member</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Designates whether the user can log into the Django admin site.</div>
+                        </div>
+                    </label>
+
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                        <input type="checkbox" name="is_superuser" style="accent-color: var(--django-primary); width: 16px; height: 16px; margin-top: 2px;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 12.5px; color: #334155;">Superuser Status</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Designates that this user has all permissions without explicitly assigning them.</div>
+                        </div>
+                    </label>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Submit Action Row -->
+    <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button type="submit" name="_save" class="btn-action-primary" style="padding: 10px 22px; font-size: 12.5px; cursor: pointer;">
+                <i class="fa-solid fa-floppy-disk"></i> Save User
+            </button>
+            <button type="submit" name="_addanother" value="1" style="background-color: #f8fafc; color: #475569; border: 1px solid var(--border-dark); padding: 10px 18px; font-size: 12.5px; font-weight: 700; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-plus"></i> Save and Add Another
+            </button>
+        </div>
+        <a href="/admin/users/" style="color: #64748b; font-size: 12.5px; font-weight: 600; text-decoration: none;">
+            Cancel
+        </a>
+    </div>
+</form>
+
+<!-- Password Generator & Image Preview Script -->
+<script>
+    // 1. Password Auto-Generator
+    function generateRandomPassword(length = 12) {
+        const uppercase = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+        const lowercase = "abcdefghijkmnopqrstuvwxyz";
+        const numbers = "23456789";
+        const symbols = "!@#$%^&*()_+~=";
+        const allChars = uppercase + lowercase + numbers + symbols;
+
+        let password = "";
+        password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
+        password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
+        password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+        password += symbols.charAt(Math.floor(Math.random() * symbols.length));
+
+        for (let i = 4; i < length; i++) {
+            password += allChars.charAt(Math.floor(Math.random() * allChars.length));
+        }
+
+        // Shuffle password
+        return password.split('').sort(() => 0.5 - Math.random()).join('');
+    }
+
+    const btnAutoGenerate = document.getElementById('btnAutoGenerate');
+    const passField = document.getElementById('id_password');
+    const confirmPassField = document.getElementById('id_confirm_password');
+    const generatedBox = document.getElementById('generatedPassBox');
+    const generatedText = document.getElementById('generatedPassText');
+    const btnCopy = document.getElementById('btnCopyGenerated');
+
+    if (btnAutoGenerate) {
+        btnAutoGenerate.addEventListener('click', function() {
+            const pass = generateRandomPassword(12);
+            passField.value = pass;
+            confirmPassField.value = pass;
+            
+            generatedText.textContent = pass;
+            generatedBox.style.display = 'flex';
+        });
+    }
+
+    if (btnCopy) {
+        btnCopy.addEventListener('click', function() {
+            const text = generatedText.textContent;
+            if (text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    btnCopy.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        btnCopy.innerHTML = '<i class="fa-solid fa-copy"></i> Copy';
+                    }, 2000);
+                });
+            }
+        });
+    }
+
+    // 2. Password Toggle Visibility
+    document.querySelectorAll('.password-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            if (input) {
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            }
+        });
+    });
+
+    // 3. Avatar Live Preview
+    const avatarFileInput = document.getElementById('avatarFileInput');
+    const avatarImg = document.getElementById('avatarImg');
+    const avatarIcon = document.getElementById('avatarIcon');
+
+    if (avatarFileInput) {
+        avatarFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    avatarImg.src = evt.target.result;
+                    avatarImg.style.display = 'block';
+                    avatarIcon.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,393 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in | Master Admin Panel</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --django-header-bg: #264b5d;
+            --django-header-title: #f5dd5d;
+            --django-breadcrumbs-bg: #1f3a47;
+            --django-primary: #417690;
+            --django-primary-dark: #205067;
+            --django-primary-light: #79aec8;
+            --django-accent-gold: #ffc107;
+            --border-color: #e2e8f0;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1f3a47 0%, #264b5d 50%, #1a323d 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-dark);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Subtle background glow decorative elements */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(121, 174, 200, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: -100px;
+            left: -100px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(245, 221, 93, 0.1) 0%, rgba(0,0,0,0) 70%);
+            bottom: -100px;
+            right: -100px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .login-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 440px;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            background-color: var(--django-header-bg);
+            padding: 28px 30px;
+            text-align: center;
+            border-bottom: 3px solid var(--django-accent-gold);
+            position: relative;
+        }
+
+        .login-header .brand-title {
+            color: var(--django-header-title);
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .login-header .brand-subtitle {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .login-body {
+            padding: 32px 30px 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #475569;
+            margin-bottom: 7px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 14px;
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 14px 12px 40px;
+            font-size: 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 6px;
+            background-color: #f8fafc;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            background-color: #ffffff;
+            border-color: var(--django-primary);
+            box-shadow: 0 0 0 3px rgba(65, 118, 144, 0.15);
+        }
+
+        .form-control:focus + .input-icon,
+        .input-wrapper:focus-within .input-icon {
+            color: var(--django-primary);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: var(--django-primary);
+        }
+
+        .alert-error {
+            background-color: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+            padding: 12px 14px;
+            border-radius: 4px;
+            font-size: 12.5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.4;
+        }
+
+        .alert-error i {
+            margin-top: 2px;
+            color: #dc2626;
+            font-size: 14px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--django-primary);
+            color: #ffffff;
+            border: none;
+            padding: 13px;
+            font-size: 13.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 2px 6px rgba(65, 118, 144, 0.3);
+            margin-top: 8px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--django-primary-dark);
+            box-shadow: 0 4px 12px rgba(32, 80, 103, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .login-footer {
+            background-color: #f8fafc;
+            padding: 16px 30px;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .login-footer a {
+            color: var(--django-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+            color: var(--django-primary-dark);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <!-- Card Header -->
+        <div class="login-header">
+            <div class="brand-title">
+                <i class="fa-solid fa-shield-halved" style="color: var(--django-accent-gold);"></i>
+                <span>Master Admin Panel</span>
+            </div>
+            <div class="brand-subtitle">Django Administration Portal</div>
+        </div>
+
+        <!-- Card Body / Form -->
+        <div class="login-body">
+            
+            {% if login_errors %}
+                {% for err in login_errors %}
+                    <div class="alert-error">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <div>{{ err }}</div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if form.errors and not form.non_field_errors %}
+                <div class="alert-error">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <div>
+                        {% if form.errors.items|length == 1 %}
+                            Please correct the error below.
+                        {% else %}
+                            Please correct the errors below.
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <div class="alert-error">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <div>{{ error }}</div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form action="/admin/login/" method="post" id="login-form">
+                {% csrf_token %}
+                
+                <!-- Username Field -->
+                <div class="form-group">
+                    <label class="form-label" for="id_username">Username</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user input-icon"></i>
+                        <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username" class="form-control" placeholder="Enter your username" value="{{ request.POST.username|default:'' }}">
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label class="form-label" for="id_password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" name="password" autocomplete="current-password" required id="id_password" class="form-control" placeholder="Enter your password">
+                        <i class="fa-regular fa-eye password-toggle" id="togglePassword" title="Show/Hide Password"></i>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <span>Log In</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="login-footer">
+            <a href="/"><i class="fa-solid fa-house"></i> View Main Site</a>
+            <span>Django &bull; Secure Access</span>
+        </div>
+    </div>
+
+    <script>
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('id_password');
+        
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function () {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
+        }
+
+        const loginForm = document.getElementById('login-form');
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                if (loginForm.checkValidity && !loginForm.checkValidity()) {
+                    return;
+                }
+                const btn = loginForm.querySelector('.btn-submit');
+                if (btn) {
+                    setTimeout(function() {
+                        btn.style.opacity = '0.75';
+                        btn.style.cursor = 'not-allowed';
+                        btn.setAttribute('disabled', 'disabled');
+                        const icon = btn.querySelector('i');
+                        if (icon) {
+                            icon.className = 'fa-solid fa-circle-notch fa-spin';
+                            icon.style.marginRight = '8px';
+                        }
+                        const span = btn.querySelector('span');
+                        if (span) {
+                            span.textContent = 'Logging in...';
+                        }
+                    }, 10);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

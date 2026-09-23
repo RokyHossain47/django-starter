@@ -1,13 +1,16 @@
 from django.contrib import admin
-from django.urls import path
-from app.views import setup_admin_customizations, admin_logout_view, users_list_view, settings_view
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from app.controllers import setup_admin_customizations
 
 # Initialize Admin site custom index and settings
 setup_admin_customizations()
 
 urlpatterns = [
-    path('admin/logout/', admin_logout_view, name='custom_admin_logout'),
-    path('admin/users/', users_list_view, name='custom_admin_users'),
-    path('admin/settings/', settings_view, name='custom_admin_settings'),
+    path('admin/', include('app.urls')),
     path('admin/', admin.site.urls),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

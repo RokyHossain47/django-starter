@@ -1,59 +1,79 @@
-{% extends "admin/base.html" %}
+{% extends "admin/layouts/base.html" %}
 
 {% block title %}Dashboard | Master Admin Panel{% endblock %}
 
 {% block nav_dashboard %}active{% endblock %}
 
 {% block breadcrumbs %}
-<span>Dashboard</span>
+<a href="/admin/">Home</a> &rsaquo; <span>Dashboard</span>
 {% endblock %}
 
 {% block content %}
 <!-- Page Title Bar -->
 <div class="page-heading-row">
     <h1 class="page-title">Site Administration & Dashboard</h1>
-    <a href="{% url 'admin:auth_user_add' %}" class="btn-action-primary">
+    <a href="{% url 'custom_admin_user_add' %}" class="btn-action-primary">
         <i class="fa-solid fa-plus"></i> Add User +
     </a>
 </div>
 
 <!-- KPI Summary Bar -->
 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
-    <div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px 18px; border-top: 3px solid var(--django-primary);">
-        <div style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em; margin-bottom: 6px;">Total Registered Users</div>
-        <div style="font-size: 26px; font-weight: 700; color: var(--django-header-bg);">{{ total_users|default:"0" }}</div>
-        <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;"><a href="/admin/users/" style="color: var(--django-primary);">Manage users &rarr;</a></div>
+    <div
+        style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px 18px; border-top: 3px solid var(--django-primary);">
+        <div
+            style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em; margin-bottom: 6px;">
+            Total Registered Users</div>
+        <div style="font-size: 26px; font-weight: 700; color: var(--django-header-bg);">{{ total_users|default:"0" }}
+        </div>
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;"><a href="/admin/users/"
+                style="color: var(--django-primary);">Manage users &rarr;</a></div>
     </div>
 
-    <div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px 18px; border-top: 3px solid #10b981;">
-        <div style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em; margin-bottom: 6px;">Active Users</div>
+    <div
+        style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px 18px; border-top: 3px solid #10b981;">
+        <div
+            style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em; margin-bottom: 6px;">
+            Active Users</div>
         <div style="font-size: 26px; font-weight: 700; color: #047857;">{{ active_users|default:"0" }}</div>
         <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">Verified accounts</div>
     </div>
 
-    <div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px 18px; border-top: 3px solid #f59e0b;">
-        <div style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em; margin-bottom: 6px;">Staff & Superusers</div>
-        <div style="font-size: 26px; font-weight: 700; color: #b45309;">{{ staff_users|default:"0" }} / {{ superusers_count|default:"0" }}</div>
+    <div
+        style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px 18px; border-top: 3px solid #f59e0b;">
+        <div
+            style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em; margin-bottom: 6px;">
+            Staff & Superusers</div>
+        <div style="font-size: 26px; font-weight: 700; color: #b45309;">{{ staff_users|default:"0" }} / {{
+            superusers_count|default:"0" }}</div>
         <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">Admin privileges</div>
     </div>
 
-    <div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px 18px; border-top: 3px solid #475569;">
-        <div style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em; margin-bottom: 6px;">Security Groups</div>
+    <div
+        style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px 18px; border-top: 3px solid #475569;">
+        <div
+            style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em; margin-bottom: 6px;">
+            Security Groups</div>
         <div style="font-size: 26px; font-weight: 700; color: #334155;">{{ total_groups|default:"0" }}</div>
-        <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;"><a href="{% url 'admin:auth_group_changelist' %}">Role configs &rarr;</a></div>
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;"><a
+                href="{% url 'admin:auth_group_changelist' %}">Role configs &rarr;</a></div>
     </div>
 </div>
 
 <!-- Charts Section -->
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
     <div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px;">
-        <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">User Registrations & Activity Trend</div>
+        <div
+            style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+            User Registrations & Activity Trend</div>
         <div style="position: relative; height: 190px; width: 100%;">
             <canvas id="userGrowthChart"></canvas>
         </div>
     </div>
     <div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px;">
-        <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">Role & Permission Distribution</div>
+        <div
+            style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+            Role & Permission Distribution</div>
         <div style="position: relative; height: 190px; width: 100%;">
             <canvas id="roleDistributionChart"></canvas>
         </div>
@@ -61,7 +81,8 @@
 </div>
 
 <!-- Users Table Section -->
-<div style="font-size: 15px; font-weight: 600; color: #333333; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+<div
+    style="font-size: 15px; font-weight: 600; color: #333333; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
     <span>Recent Users Overview</span>
     <a href="/admin/users/" style="font-size: 12px; color: var(--django-primary);">View all users &rarr;</a>
 </div>
@@ -80,36 +101,36 @@
         </thead>
         <tbody>
             {% if recent_users %}
-                {% for u in recent_users %}
-                <tr>
-                    <td>
-                        <a href="{% url 'admin:auth_user_change' u.id %}" style="font-weight: 600;">{{ u.username }}</a>
-                    </td>
-                    <td>{{ u.email|default:"-" }}</td>
-                    <td>
-                        {% if u.is_staff %}
-                            <span class="badge-status yes"><i class="fa-solid fa-circle-check"></i> Yes</span>
-                        {% else %}
-                            <span style="color: #94a3b8;">No</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if u.is_superuser %}
-                            <span class="badge-status superuser"><i class="fa-solid fa-shield"></i> Yes</span>
-                        {% else %}
-                            <span style="color: #94a3b8;">No</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ u.date_joined|date:"M d, Y H:i" }}</td>
-                    <td style="text-align: right;">
-                        <a href="{% url 'admin:auth_user_change' u.id %}" style="font-weight: 600;">Edit</a>
-                    </td>
-                </tr>
-                {% endfor %}
+            {% for u in recent_users %}
+            <tr>
+                <td>
+                    <a href="{% url 'admin:auth_user_change' u.id %}" style="font-weight: 600;">{{ u.username }}</a>
+                </td>
+                <td>{{ u.email|default:"-" }}</td>
+                <td>
+                    {% if u.is_staff %}
+                    <span class="badge-status yes"><i class="fa-solid fa-circle-check"></i> Yes</span>
+                    {% else %}
+                    <span style="color: #94a3b8;">No</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if u.is_superuser %}
+                    <span class="badge-status superuser"><i class="fa-solid fa-shield"></i> Yes</span>
+                    {% else %}
+                    <span style="color: #94a3b8;">No</span>
+                    {% endif %}
+                </td>
+                <td>{{ u.date_joined|date:"M d, Y H:i" }}</td>
+                <td style="text-align: right;">
+                    <a href="{% url 'admin:auth_user_change' u.id %}" style="font-weight: 600;">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
             {% else %}
-                <tr>
-                    <td colspan="6" style="text-align: center; color: #94a3b8; padding: 20px;">No users registered yet.</td>
-                </tr>
+            <tr>
+                <td colspan="6" style="text-align: center; color: #94a3b8; padding: 20px;">No users registered yet.</td>
+            </tr>
             {% endif %}
         </tbody>
     </table>
@@ -142,26 +163,29 @@
         </div>
         <div class="filter-body">
             {% if recent_actions %}
-                <div class="action-log-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto;">
-                    {% for entry in recent_actions %}
-                    <div style="padding: 8px 10px; background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 3px; font-size: 11.5px;">
-                        <div>
-                            <strong>{{ entry.user.username }}</strong>: 
-                            {% if entry.is_addition %}<span style="color: #16a34a;">Added</span>
-                            {% elif entry.is_change %}<span style="color: #2563eb;">Changed</span>
-                            {% elif entry.is_deletion %}<span style="color: #dc2626;">Deleted</span>
-                            {% endif %}
-                            <strong>{{ entry.object_repr|truncatechars:20 }}</strong>
-                        </div>
-                        <div style="display: flex; align-items: center; justify-content: space-between; color: var(--text-dim); font-size: 10.5px; margin-top: 4px;">
-                            <span>{{ entry.content_type.name|capfirst }}</span>
-                            <span>{{ entry.action_time|date:"H:i" }}</span>
-                        </div>
+            <div class="action-log-list"
+                style="display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto;">
+                {% for entry in recent_actions %}
+                <div
+                    style="padding: 8px 10px; background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 3px; font-size: 11.5px;">
+                    <div>
+                        <strong>{{ entry.user.username }}</strong>:
+                        {% if entry.is_addition %}<span style="color: #16a34a;">Added</span>
+                        {% elif entry.is_change %}<span style="color: #2563eb;">Changed</span>
+                        {% elif entry.is_deletion %}<span style="color: #dc2626;">Deleted</span>
+                        {% endif %}
+                        <strong>{{ entry.object_repr|truncatechars:20 }}</strong>
                     </div>
-                    {% endfor %}
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; color: var(--text-dim); font-size: 10.5px; margin-top: 4px;">
+                        <span>{{ entry.content_type.name|capfirst }}</span>
+                        <span>{{ entry.action_time|date:"H:i" }}</span>
+                    </div>
                 </div>
+                {% endfor %}
+            </div>
             {% else %}
-                <div style="color: #94a3b8; text-align: center; padding: 10px 0;">None available</div>
+            <div style="color: #94a3b8; text-align: center; padding: 10px 0;">None available</div>
             {% endif %}
         </div>
     </div>
@@ -179,58 +203,59 @@
                     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                     datasets: [{
                         label: 'Logins & Registrations',
-                        data: [1, 3, 2, 4, 3, 5, {{ total_users|default:1 }} * 3],
-                        borderColor: '#417690',
-                        backgroundColor: 'rgba(65, 118, 144, 0.1)',
-                        fill: true,
-                        tension: 0.3,
-                        borderWidth: 2,
-                        pointRadius: 3,
-                        pointBackgroundColor: '#205067'
-                    }]
+                        data: [1, 3, 2, 4, 3, 5, {{ total_users|default: 1
+                    }} * 3],
+                borderColor: '#417690',
+                backgroundColor: 'rgba(65, 118, 144, 0.1)',
+                fill: true,
+                tension: 0.3,
+                borderWidth: 2,
+                pointRadius: 3,
+                pointBackgroundColor: '#205067'
+            }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+        options: {
+            responsive: true,
+                maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-                        y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 }, precision: 0 } }
-                    }
-                }
-            });
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 }, precision: 0 } }
+            }
+        }
+    });
         }
 
-        const ctxRole = document.getElementById('roleDistributionChart');
-        if (ctxRole) {
-            const totalUsers = parseInt("{{ total_users|default:1 }}") || 1;
-            const superusers = parseInt("{{ superusers_count|default:1 }}") || 1;
-            const staff = parseInt("{{ staff_users|default:1 }}") || 1;
-            const regular = Math.max(0, totalUsers - staff);
+    const ctxRole = document.getElementById('roleDistributionChart');
+    if (ctxRole) {
+        const totalUsers = parseInt("{{ total_users|default:1 }}") || 1;
+        const superusers = parseInt("{{ superusers_count|default:1 }}") || 1;
+        const staff = parseInt("{{ staff_users|default:1 }}") || 1;
+        const regular = Math.max(0, totalUsers - staff);
 
-            new Chart(ctxRole, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Superusers', 'Staff Admins', 'Regular Users'],
-                    datasets: [{
-                        data: [superusers, Math.max(0, staff - superusers), regular || 1],
-                        backgroundColor: ['#f59e0b', '#79aec8', '#417690'],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '65%',
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { font: { size: 10 }, padding: 8 }
-                        }
+        new Chart(ctxRole, {
+            type: 'doughnut',
+            data: {
+                labels: ['Superusers', 'Staff Admins', 'Regular Users'],
+                datasets: [{
+                    data: [superusers, Math.max(0, staff - superusers), regular || 1],
+                    backgroundColor: ['#f59e0b', '#79aec8', '#417690'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 10 }, padding: 8 }
                     }
                 }
-            });
-        }
+            }
+        });
+    }
     });
 </script>
 {% endblock %}

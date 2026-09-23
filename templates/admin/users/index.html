@@ -1,19 +1,18 @@
-{% extends "admin/base.html" %}
+{% extends "admin/layouts/base.html" %}
 
 {% block title %}Select user to change | Master Admin Panel{% endblock %}
 
 {% block nav_users %}active{% endblock %}
 
 {% block breadcrumbs %}
-<a href="/admin/users/">Authentication and Authorization</a> &rsaquo;
-<span>Users</span>
+<a href="/admin/">Home</a> &rsaquo; <a href="/admin/users/">Authentication and Authorization</a> &rsaquo; <span>Users</span>
 {% endblock %}
 
 {% block content %}
 <!-- Page Heading & Actions -->
 <div class="page-heading-row">
-    <h1 class="page-title">Select user to change</h1>
-    <a href="{% url 'admin:auth_user_add' %}" class="btn-action-primary">
+    <h1 class="page-title">Users Management</h1>
+    <a href="{% url 'custom_admin_user_add' %}" class="btn-action-primary">
         <i class="fa-solid fa-plus"></i> Add User +
     </a>
 </div>
@@ -21,10 +20,13 @@
 <!-- Search Bar & Filters Form -->
 <form method="get" action="/admin/users/" style="margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
     <div style="position: relative; width: 340px;">
-        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px;"></i>
-        <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Search username, email, name..." style="width: 100%; padding: 8px 12px 8px 32px; border: 1px solid var(--border-dark); border-radius: 3px; font-size: 13px; outline: none;">
+        <i class="fa-solid fa-magnifying-glass"
+            style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px;"></i>
+        <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Search username, email, company, phone..."
+            style="width: 100%; padding: 8px 12px 8px 32px; border: 1px solid var(--border-dark); border-radius: 3px; font-size: 13px; outline: none;">
     </div>
-    <button type="submit" style="background-color: #f1f5f9; border: 1px solid var(--border-dark); padding: 8px 16px; border-radius: 3px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer;">
+    <button type="submit"
+        style="background-color: #f1f5f9; border: 1px solid var(--border-dark); padding: 8px 16px; border-radius: 3px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer;">
         Search
     </button>
     {% if query or current_staff_filter or current_superuser_filter or current_active_filter %}
@@ -33,13 +35,16 @@
 </form>
 
 <!-- Action Bar -->
-<div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-bottom: none; padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-size: 12px; border-top-left-radius: 4px; border-top-right-radius: 4px;">
+<div
+    style="background-color: #f8fafc; border: 1px solid var(--border-color); border-bottom: none; padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-size: 12px; border-top-left-radius: 4px; border-top-right-radius: 4px;">
     <span style="font-weight: 600; color: #475569;">Action:</span>
-    <select style="border: 1px solid var(--border-dark); padding: 5px 10px; border-radius: 3px; font-size: 12px; outline: none; background: white;">
+    <select
+        style="border: 1px solid var(--border-dark); padding: 5px 10px; border-radius: 3px; font-size: 12px; outline: none; background: white;">
         <option value="">- Select an option -</option>
         <option value="delete">Delete selected users</option>
     </select>
-    <button type="button" style="background-color: #e2e8f0; border: 1px solid var(--border-dark); padding: 5px 12px; border-radius: 3px; font-size: 12px; font-weight: 600; color: #334155; cursor: pointer;">Run</button>
+    <button type="button"
+        style="background-color: #e2e8f0; border: 1px solid var(--border-dark); padding: 5px 12px; border-radius: 3px; font-size: 12px; font-weight: 600; color: #334155; cursor: pointer;">Run</button>
     <span style="color: #64748b; margin-left: auto;">{{ users|length }} user{{ users|length|pluralize }}</span>
 </div>
 
@@ -51,50 +56,64 @@
                 <th style="width: 36px; text-align: center;">
                     <input type="checkbox" id="selectAllCheckbox">
                 </th>
-                <th>USERNAME</th>
+                <th>USER</th>
                 <th>EMAIL ADDRESS</th>
-                <th>FIRST NAME</th>
-                <th>LAST NAME</th>
+                <th>COMPANY</th>
+                <th>PHONE</th>
                 <th>STAFF STATUS</th>
                 <th style="text-align: right;">ACTIONS</th>
             </tr>
         </thead>
         <tbody>
             {% if users %}
-                {% for u in users %}
-                <tr>
-                    <td style="text-align: center;">
-                        <input type="checkbox" class="user-row-checkbox" value="{{ u.id }}">
-                    </td>
-                    <td>
-                        <a href="{% url 'admin:auth_user_change' u.id %}" style="font-weight: 600; color: var(--django-primary);">
-                            {{ u.username }}
-                        </a>
-                    </td>
-                    <td>{{ u.email|default:"-" }}</td>
-                    <td>{{ u.first_name|default:"-" }}</td>
-                    <td>{{ u.last_name|default:"-" }}</td>
-                    <td>
-                        {% if u.is_staff %}
-                            <i class="fa-solid fa-circle-check" style="color: #16a34a; font-size: 15px;" title="Staff Member"></i>
+            {% for u in users %}
+            <tr>
+                <td style="text-align: center;">
+                    <input type="checkbox" class="user-row-checkbox" value="{{ u.id }}">
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        {% if u.profile.avatar %}
+                            <img src="{{ u.profile.avatar.url }}" alt="{{ u.username }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color);">
                         {% else %}
-                            <span style="color: #cbd5e1;">-</span>
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; color: #475569; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center;">
+                                {{ u.username|slice:":1"|upper }}
+                            </div>
                         {% endif %}
-                    </td>
-                    <td style="text-align: right;">
-                        <a href="{% url 'admin:auth_user_change' u.id %}" style="margin-right: 10px; color: var(--django-primary); font-weight: 600;">
-                            <i class="fa-solid fa-pen"></i> Edit
-                        </a>
-                        <a href="{% url 'admin:auth_user_delete' u.id %}" style="color: #dc2626; font-weight: 600;">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
+                        <div>
+                            <a href="{% url 'admin:auth_user_change' u.id %}" style="font-weight: 700; color: var(--django-primary); display: block;">
+                                {{ u.username }}
+                            </a>
+                            <span style="font-size: 11px; color: var(--text-dim);">{{ u.get_full_name|default:"" }}</span>
+                        </div>
+                    </div>
+                </td>
+                <td><strong style="color: #1e293b;">{{ u.email|default:"-" }}</strong></td>
+                <td>{{ u.profile.company_name|default:"-" }}</td>
+                <td>{{ u.profile.phone|default:"-" }}</td>
+                <td>
+                    {% if u.is_staff %}
+                    <i class="fa-solid fa-circle-check" style="color: #16a34a; font-size: 15px;"
+                        title="Staff Member"></i>
+                    {% else %}
+                    <span style="color: #cbd5e1;">-</span>
+                    {% endif %}
+                </td>
+                <td style="text-align: right;">
+                    <a href="{% url 'admin:auth_user_change' u.id %}"
+                        style="margin-right: 10px; color: var(--django-primary); font-weight: 600;">
+                        <i class="fa-solid fa-pen"></i> Edit
+                    </a>
+                    <a href="{% url 'admin:auth_user_delete' u.id %}" style="color: #dc2626; font-weight: 600;">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
             {% else %}
-                <tr>
-                    <td colspan="7" style="text-align: center; color: #94a3b8; padding: 24px;">No users found matching the criteria.</td>
-                </tr>
+            <tr>
+                <td colspan="7" style="text-align: center; color: #94a3b8; padding: 24px;">No users found matching the criteria.</td>
+            </tr>
             {% endif %}
         </tbody>
     </table>
@@ -120,20 +139,26 @@
             <!-- By Staff Status -->
             <div class="filter-group-title">&rsaquo; By staff status</div>
             <a href="/admin/users/" class="filter-link {% if not current_staff_filter %}active{% endif %}">All</a>
-            <a href="/admin/users/?is_staff=1{% if query %}&q={{ query }}{% endif %}" class="filter-link {% if current_staff_filter == '1' %}active{% endif %}">Yes</a>
-            <a href="/admin/users/?is_staff=0{% if query %}&q={{ query }}{% endif %}" class="filter-link {% if current_staff_filter == '0' %}active{% endif %}">No</a>
+            <a href="/admin/users/?is_staff=1{% if query %}&q={{ query }}{% endif %}"
+                class="filter-link {% if current_staff_filter == '1' %}active{% endif %}">Yes</a>
+            <a href="/admin/users/?is_staff=0{% if query %}&q={{ query }}{% endif %}"
+                class="filter-link {% if current_staff_filter == '0' %}active{% endif %}">No</a>
 
             <!-- By Superuser Status -->
             <div class="filter-group-title">&rsaquo; By superuser status</div>
             <a href="/admin/users/" class="filter-link {% if not current_superuser_filter %}active{% endif %}">All</a>
-            <a href="/admin/users/?is_superuser=1{% if query %}&q={{ query }}{% endif %}" class="filter-link {% if current_superuser_filter == '1' %}active{% endif %}">Yes</a>
-            <a href="/admin/users/?is_superuser=0{% if query %}&q={{ query }}{% endif %}" class="filter-link {% if current_superuser_filter == '0' %}active{% endif %}">No</a>
+            <a href="/admin/users/?is_superuser=1{% if query %}&q={{ query }}{% endif %}"
+                class="filter-link {% if current_superuser_filter == '1' %}active{% endif %}">Yes</a>
+            <a href="/admin/users/?is_superuser=0{% if query %}&q={{ query }}{% endif %}"
+                class="filter-link {% if current_superuser_filter == '0' %}active{% endif %}">No</a>
 
             <!-- By Active -->
             <div class="filter-group-title">&rsaquo; By active</div>
             <a href="/admin/users/" class="filter-link {% if not current_active_filter %}active{% endif %}">All</a>
-            <a href="/admin/users/?is_active=1{% if query %}&q={{ query }}{% endif %}" class="filter-link {% if current_active_filter == '1' %}active{% endif %}">Yes</a>
-            <a href="/admin/users/?is_active=0{% if query %}&q={{ query }}{% endif %}" class="filter-link {% if current_active_filter == '0' %}active{% endif %}">No</a>
+            <a href="/admin/users/?is_active=1{% if query %}&q={{ query }}{% endif %}"
+                class="filter-link {% if current_active_filter == '1' %}active{% endif %}">Yes</a>
+            <a href="/admin/users/?is_active=0{% if query %}&q={{ query }}{% endif %}"
+                class="filter-link {% if current_active_filter == '0' %}active{% endif %}">No</a>
         </div>
     </div>
 </aside>
@@ -143,7 +168,7 @@
 <script>
     const selectAll = document.getElementById('selectAllCheckbox');
     if (selectAll) {
-        selectAll.addEventListener('change', function() {
+        selectAll.addEventListener('change', function () {
             document.querySelectorAll('.user-row-checkbox').forEach(cb => {
                 cb.checked = selectAll.checked;
             });
