@@ -1,0 +1,132 @@
+{% extends "admin/layouts/base.html" %}
+
+{% block title %}Roles & Permissions | {{ site_title|default:"Django Admin" }}{% endblock %}
+
+{% block breadcrumbs %}
+<a href="/admin/">Home</a> &rsaquo; <a href="/admin/users/">Users Management</a> &rsaquo; <span>Roles & Permissions</span>
+{% endblock %}
+
+{% block nav_users %}active{% endblock %}
+
+{% block content %}
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 12px;">
+    <div>
+        <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-shield-halved" style="color: var(--django-primary);"></i>
+            Roles & Permissions Management
+        </h1>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-dim);">
+            Create dynamic user roles and configure granular permissions across the system.
+        </p>
+    </div>
+    {% if perms.app.add_role or request.user.is_superuser %}
+    <a href="{% url 'custom_admin_role_add' %}" class="btn-action-primary" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 600; padding: 9px 18px; border-radius: 5px; text-decoration: none; font-size: 13px;">
+        <i class="fa-solid fa-plus"></i> Create New Role
+    </a>
+    {% endif %}
+</div>
+
+<!-- Search Bar & Filters -->
+<div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+    <form method="get" action="{% url 'custom_admin_roles' %}" style="display: flex; align-items: center; gap: 8px; flex: 1; max-width: 480px;">
+        <div style="position: relative; width: 100%;">
+            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 11px; color: #94a3b8; font-size: 13px;"></i>
+            <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Search roles by name or description..." style="width: 100%; padding: 8px 12px 8px 34px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc;">
+        </div>
+        <button type="submit" style="background-color: var(--django-primary); color: #ffffff; border: none; padding: 8px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            Search
+        </button>
+        {% if query %}
+        <a href="{% url 'custom_admin_roles' %}" style="font-size: 12px; color: #ef4444; text-decoration: none; margin-left: 4px;">Clear</a>
+        {% endif %}
+    </form>
+    <div style="font-size: 12.5px; color: var(--text-dim); display: flex; align-items: center; gap: 16px;">
+        <span>Total Roles: <strong style="color: #1e293b;">{{ total_roles }}</strong></span>
+        <span>Total Users: <strong style="color: #1e293b;">{{ total_users }}</strong></span>
+        <span>System Permissions: <strong style="color: #1e293b;">{{ total_permissions }}</strong></span>
+    </div>
+</div>
+
+<!-- Roles Table -->
+<div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
+    <table class="django-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+            <tr style="background-color: #f8fafc; border-bottom: 1px solid var(--border-color);">
+                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Role Name</th>
+                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Description</th>
+                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; text-align: center;">Assigned Users</th>
+                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; text-align: center;">Permissions Count</th>
+                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for role in roles %}
+            <tr style="border-bottom: 1px solid #f1f5f9; transition: background-color 0.15s ease;" onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor='transparent'">
+                <td style="padding: 14px 16px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 34px; height: 34px; border-radius: 6px; background-color: rgba(59, 130, 246, 0.1); color: var(--django-primary); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700;">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                        <div>
+                            {% if perms.app.change_role or request.user.is_superuser %}
+                            <a href="{% url 'custom_admin_role_edit' role.id %}" style="font-size: 13.5px; font-weight: 700; color: #1e293b; text-decoration: none;">
+                                {{ role.name }}
+                            </a>
+                            {% else %}
+                            <span style="font-size: 13.5px; font-weight: 700; color: #1e293b;">{{ role.name }}</span>
+                            {% endif %}
+                            <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">
+                                Created {{ role.created_at|date:"M d, Y" }}
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td style="padding: 14px 16px; font-size: 13px; color: #64748b; max-width: 320px;">
+                    {{ role.description|default:"<em>No description provided</em>" }}
+                </td>
+                <td style="padding: 14px 16px; text-align: center;">
+                    <a href="/admin/users/?role={{ role.id }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background-color: #f1f5f9; border-radius: 20px; font-size: 12px; font-weight: 600; color: #334155; text-decoration: none;">
+                        <i class="fa-solid fa-users" style="color: #94a3b8; font-size: 11px;"></i>
+                        {{ role.user_count }} {{ role.user_count|pluralize:"user,users" }}
+                    </a>
+                </td>
+                <td style="padding: 14px 16px; text-align: center;">
+                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background-color: rgba(16, 185, 129, 0.1); border-radius: 20px; font-size: 12px; font-weight: 700; color: #059669;">
+                        <i class="fa-solid fa-key" style="font-size: 11px;"></i>
+                        {{ role.perm_count }} {{ role.perm_count|pluralize:"permission,permissions" }}
+                    </span>
+                </td>
+                <td style="padding: 14px 16px; text-align: right;">
+                    <div style="display: inline-flex; align-items: center; gap: 8px;">
+                        {% if perms.app.change_role or request.user.is_superuser %}
+                        <a href="{% url 'custom_admin_role_edit' role.id %}" style="padding: 6px 12px; background-color: #f8fafc; border: 1px solid var(--border-dark); border-radius: 4px; font-size: 12px; font-weight: 600; color: #475569; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </a>
+                        {% endif %}
+                        {% if perms.app.delete_role or request.user.is_superuser %}
+                        <a href="{% url 'custom_admin_role_delete' role.id %}" style="padding: 6px 10px; background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; font-size: 12px; font-weight: 600; color: #ef4444; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="padding: 36px 16px; text-align: center; color: var(--text-dim); font-size: 13.5px;">
+                    <i class="fa-solid fa-shield-slash" style="font-size: 28px; margin-bottom: 10px; display: block; color: #cbd5e1;"></i>
+                    No roles found matching your query.
+                    {% if perms.app.add_role or request.user.is_superuser %}
+                    <div style="margin-top: 12px;">
+                        <a href="{% url 'custom_admin_role_add' %}" class="btn-action-primary" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 4px; font-size: 12.5px; text-decoration: none;">
+                            <i class="fa-solid fa-plus"></i> Create First Role
+                        </a>
+                    </div>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

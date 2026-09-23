@@ -46,3 +46,18 @@ def admin_logout_view(request):
     """
     logout(request)
     return redirect('/admin/login/')
+
+
+def custom_permission_denied_view(request, exception=None):
+    """
+    Custom 403 view that renders the admin/errors/403.html template.
+    """
+    context = {
+        'site_header': admin.site.site_header,
+        'site_title': admin.site.site_title,
+        'action_name': str(exception) if exception else 'This Resource',
+        'permission_code': getattr(exception, 'permission_code', None),
+        'user': request.user,
+    }
+    return render(request, 'admin/errors/403.html', context, status=403)
+

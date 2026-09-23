@@ -1,0 +1,55 @@
+{% extends "admin/layouts/base.html" %}
+
+{% block title %}Delete Role: {{ role.name }} | {{ site_title|default:"Django Admin" }}{% endblock %}
+
+{% block breadcrumbs %}
+<a href="/admin/">Home</a> &rsaquo; <a href="/admin/users/">Users Management</a> &rsaquo; <a href="{% url 'custom_admin_roles' %}">Roles</a> &rsaquo; <span>Delete Role</span>
+{% endblock %}
+
+{% block nav_users %}active{% endblock %}
+
+{% block content %}
+<div style="max-width: 560px; margin: 40px auto; background-color: #ffffff; border: 1px solid #fecaca; border-radius: 8px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08); overflow: hidden;">
+    <div style="background-color: #fef2f2; padding: 18px 22px; border-bottom: 1px solid #fee2e2; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 38px; height: 38px; border-radius: 50%; background-color: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+            <h2 style="margin: 0; font-size: 16px; font-weight: 700; color: #991b1b;">Confirm Role Deletion</h2>
+            <div style="font-size: 12px; color: #b91c1c; margin-top: 2px;">This action cannot be undone.</div>
+        </div>
+    </div>
+
+    <div style="padding: 22px;">
+        <p style="font-size: 13.5px; color: #334155; margin-top: 0; line-height: 1.5;">
+            Are you sure you want to permanently delete the role <strong style="color: #0f172a;">"{{ role.name }}"</strong>?
+        </p>
+
+        {% if assigned_users %}
+        <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 6px; padding: 12px 14px; margin: 16px 0;">
+            <div style="font-size: 12.5px; font-weight: 700; color: #92400e; margin-bottom: 6px;">
+                <i class="fa-solid fa-users" style="margin-right: 4px;"></i> {{ assigned_users|length }} user(s) currently assigned to this role:
+            </div>
+            <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #b45309;">
+                {% for p in assigned_users %}
+                <li>{{ p.user.username }} ({{ p.user.email|default:"No email" }})</li>
+                {% endfor %}
+            </ul>
+            <div style="font-size: 11px; color: #b45309; margin-top: 8px;">
+                These users will remain in the system, but their role assignment will be cleared.
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="post" style="margin-top: 24px; display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+            {% csrf_token %}
+            <a href="{% url 'custom_admin_roles' %}" style="padding: 8px 16px; font-size: 13px; font-weight: 600; color: #475569; text-decoration: none; border-radius: 4px; background-color: #f1f5f9;">
+                Cancel
+            </a>
+            <button type="submit" style="padding: 8px 18px; font-size: 13px; font-weight: 700; color: #ffffff; background-color: #ef4444; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-trash"></i> Yes, Delete Role
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
 
 from app.models import Setting
@@ -15,7 +16,13 @@ def settings_view(request):
     Custom Settings view loaded from templates/admin/settings/index.html
     Handles displaying and updating application and system configurations.
     """
+    if not (request.user.is_superuser or request.user.has_perm('app.view_setting') or request.user.has_perm('app.change_setting')):
+        raise PermissionDenied("You do not have permission to view system settings.")
+
     if request.method == 'POST':
+        if not (request.user.is_superuser or request.user.has_perm('app.change_setting')):
+            raise PermissionDenied("You do not have permission to change system settings.")
+        
         action = request.POST.get('action')
         
         if action == 'save_settings':

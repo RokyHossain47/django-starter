@@ -11,9 +11,11 @@
 {% block content %}
 <div class="page-heading-row">
     <h1 class="page-title">System & Administration Settings</h1>
+    {% if perms.app.change_setting or request.user.is_superuser %}
     <button type="button" class="btn-action-primary">
         <i class="fa-solid fa-floppy-disk"></i> Save Settings
     </button>
+    {% endif %}
 </div>
 
 <!-- General Settings Panel -->
@@ -27,13 +29,13 @@
         <div>
             <label style="display: block; font-weight: 600; font-size: 12px; margin-bottom: 6px; color: #475569;">Site
                 Header Title</label>
-            <input type="text" value="Master Admin Panel"
+            <input type="text" value="Master Admin Panel" {% if not perms.app.change_setting and not request.user.is_superuser %}disabled{% endif %}
                 style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-dark); border-radius: 3px; font-size: 13px;">
         </div>
         <div>
             <label style="display: block; font-weight: 600; font-size: 12px; margin-bottom: 6px; color: #475569;">Admin
                 Contact Email</label>
-            <input type="email" value="admin@gmail.com"
+            <input type="email" value="admin@gmail.com" {% if not perms.app.change_setting and not request.user.is_superuser %}disabled{% endif %}
                 style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-dark); border-radius: 3px; font-size: 13px;">
         </div>
     </div>
@@ -72,8 +74,12 @@
             <span>QUICK LINKS</span>
         </div>
         <div class="filter-body">
+            {% if perms.auth.view_user or perms.auth.change_user or request.user.is_superuser %}
             <a href="/admin/users/" class="filter-link">&rsaquo; Manage Users</a>
-            <a href="{% url 'admin:auth_group_changelist' %}" class="filter-link">&rsaquo; Security Groups</a>
+            {% endif %}
+            {% if perms.app.view_role or perms.app.change_role or perms.auth.view_group or request.user.is_superuser %}
+            <a href="{% url 'custom_admin_roles' %}" class="filter-link">&rsaquo; Security Roles</a>
+            {% endif %}
             <a href="{% url 'admin:password_change' %}" class="filter-link">&rsaquo; Change Password</a>
         </div>
     </div>

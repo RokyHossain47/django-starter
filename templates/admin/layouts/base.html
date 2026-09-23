@@ -769,17 +769,32 @@
             </div>
 
             <!-- Authentication & Authorization Block -->
+            {% if perms.auth.view_user or perms.auth.change_user or perms.app.view_role or perms.app.change_role or request.user.is_superuser %}
             <div class="app-block">
                 <div class="app-block-header">
-                    <span>Users Management</span>
+                    <span>Users & Access Control</span>
                 </div>
+                {% if perms.auth.view_user or perms.auth.change_user or request.user.is_superuser %}
                 <div class="app-model-item {% block nav_users %}{% endblock %}">
-                    <a href="/admin/users/">Users</a>
+                    <a href="/admin/users/"><i class="fa-solid fa-users" style="color: var(--django-primary); margin-right: 6px;"></i> Users</a>
+                    {% if perms.auth.add_user or request.user.is_superuser %}
                     <a href="{% url 'custom_admin_user_add' %}" class="btn-add-mini"><i class="fa-solid fa-plus"></i> Add</a>
+                    {% endif %}
                 </div>
+                {% endif %}
+                {% if perms.app.view_role or perms.app.change_role or request.user.is_superuser %}
+                <div class="app-model-item {% block nav_roles %}{% endblock %}">
+                    <a href="{% url 'custom_admin_roles' %}"><i class="fa-solid fa-shield-halved" style="color: var(--django-primary); margin-right: 6px;"></i> Roles & Permissions</a>
+                    {% if perms.app.add_role or request.user.is_superuser %}
+                    <a href="{% url 'custom_admin_role_add' %}" class="btn-add-mini"><i class="fa-solid fa-plus"></i> Add</a>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
+            {% endif %}
 
             <!-- Administration & Settings Block -->
+            {% if perms.app.view_setting or perms.app.change_setting or request.user.is_superuser %}
             <div class="app-block">
                 <div class="app-block-header">
                     <span>System & Management</span>
@@ -788,11 +803,12 @@
                     <a href="/admin/settings/"><i class="fa-solid fa-gear" style="color: var(--django-primary); margin-right: 6px;"></i> Settings</a>
                 </div>
             </div>
+            {% endif %}
 
             <!-- Dynamic Apps Loop -->
             {% if app_list %}
                 {% for app in app_list %}
-                    {% if app.app_label != 'auth' %}
+                    {% if app.app_label != 'auth' and app.app_label != 'app' %}
                     <div class="app-block">
                         <div class="app-block-header">
                             <span>{{ app.name }}</span>

@@ -213,7 +213,37 @@
                 </div>
             </div>
 
-            <!-- Role & Permissions Box -->
+            <!-- Role Assignment Box -->
+            <div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
+                <div style="background-color: var(--django-breadcrumbs-bg); color: #ffffff; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-shield-halved" style="color: var(--django-accent-gold);"></i>
+                        <span>Role Assignment</span>
+                    </div>
+                    <a href="{% url 'custom_admin_role_add' %}" style="color: var(--django-accent-gold); font-size: 11px; text-decoration: none; text-transform: none; font-weight: 600;">
+                        <i class="fa-solid fa-plus"></i> New Role
+                    </a>
+                </div>
+
+                <div style="padding: 18px 20px;">
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; text-transform: uppercase;">
+                        Select Role
+                    </label>
+                    <select name="role_id" style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc; font-weight: 600; color: #1e293b;">
+                        <option value="">-- None (Standard User) --</option>
+                        {% for r in roles %}
+                        <option value="{{ r.id }}" {% if request.POST.role_id == r.id|stringformat:"s" %}selected{% endif %}>
+                            {{ r.name }} ({{ r.permissions.count }} perms)
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">
+                        Assigning a role automatically grants this user all permissions associated with that role.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permissions & Status Box -->
             <div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
                 <div style="background-color: var(--django-breadcrumbs-bg); color: #ffffff; padding: 12px 18px; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em;">
                     <i class="fa-solid fa-user-gear" style="color: var(--django-accent-gold);"></i>
@@ -234,7 +264,7 @@
                         <input type="checkbox" name="is_staff" style="accent-color: var(--django-primary); width: 16px; height: 16px; margin-top: 2px;">
                         <div>
                             <div style="font-weight: 700; font-size: 12.5px; color: #334155;">Staff Member</div>
-                            <div style="font-size: 11px; color: var(--text-muted);">Designates whether the user can log into the Django admin site.</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Designates whether the user can log into the Django admin site. (Auto-enabled if role is assigned)</div>
                         </div>
                     </label>
 

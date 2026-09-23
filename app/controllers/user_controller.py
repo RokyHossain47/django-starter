@@ -3,10 +3,11 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User, Group
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
-from app.models import Profile
+from app.models import Profile, Role
 
 
 @staff_member_required(login_url='/admin/login/', redirect_field_name=None)
@@ -81,9 +82,14 @@ def profile_view(request):
 @staff_member_required(login_url='/admin/login/', redirect_field_name=None)
 def user_add_view(request):
     """
-    Rich User Creation view supporting mandatory email, optional company name,
-    optional phone, optional profile image, and auto-generated password.
+    Rich User Creation view supporting mandatory email, role selection,
+    optional company name, optional phone, optional profile image, and auto-generated password.
     """
+    if not (request.user.is_superuser or request.user.has_perm('auth.add_user')):
+        raise PermissionDenied("You do not have permission to add users.")
+
+    roles = Role.objects.all()
+
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         first_name = request.POST.get('first_name', '').strip()
@@ -93,10 +99,15 @@ def user_add_view(request):
         confirm_password = request.POST.get('confirm_password', '')
         company_name = request.POST.get('company_name', '').strip()
         phone = request.POST.get('phone', '').strip()
+        role_id = request.POST.get('role_id', '').strip()
         
         is_staff = request.POST.get('is_staff') == 'on'
         is_superuser = request.POST.get('is_superuser') == 'on'
         is_active = request.POST.get('is_active') == 'on'
+
+        # If user has a role assigned, automatically grant staff status so they can log into admin
+        if role_id:
+            is_staff = True
 
         errors = []
         if not username:
@@ -137,6 +148,14 @@ def user_add_view(request):
                 profile.phone = phone
                 if 'avatar' in request.FILES:
                     profile.avatar = request.FILES['avatar']
+                
+                # Assign Role if selected
+                if role_id:
+                    try:
+                        role = Role.objects.get(id=role_id)
+                        profile.role = role
+                    except Role.DoesNotExist:
+                        pass
                 profile.save()
 
                 messages.success(request, f'User "{user.username}" was created successfully!')
@@ -148,6 +167,7 @@ def user_add_view(request):
                 messages.error(request, f"Error creating user: {str(e)}")
 
     context = {
+        'roles': roles,
         'site_header': admin.site.site_header,
         'site_title': admin.site.site_title,
     }
@@ -157,14 +177,18 @@ def user_add_view(request):
 @staff_member_required(login_url='/admin/login/', redirect_field_name=None)
 def users_list_view(request):
     """
-    Custom Users Management view loaded from templates/admin/users/index.html
+    Custom Users Management view with role filtering and role badges.
     """
+    if not (request.user.is_superuser or request.user.has_perm('auth.view_user') or request.user.has_perm('auth.change_user')):
+        raise PermissionDenied("You do not have permission to view users.")
+
     query = request.GET.get('q', '').strip()
     staff_filter = request.GET.get('is_staff')
     superuser_filter = request.GET.get('is_superuser')
     active_filter = request.GET.get('is_active')
+    role_filter = request.GET.get('role')
 
-    users = User.objects.select_related('profile').all().order_by('-date_joined')
+    users = User.objects.select_related('profile', 'profile__role').all().order_by('-date_joined')
 
     if query:
         users = users.filter(
@@ -173,7 +197,8 @@ def users_list_view(request):
             Q(first_name__icontains=query) |
             Q(last_name__icontains=query) |
             Q(profile__company_name__icontains=query) |
-            Q(profile__phone__icontains=query)
+            Q(profile__phone__icontains=query) |
+            Q(profile__role__name__icontains=query)
         )
 
     if staff_filter in ['0', '1']:
@@ -185,12 +210,19 @@ def users_list_view(request):
     if active_filter in ['0', '1']:
         users = users.filter(is_active=(active_filter == '1'))
 
+    if role_filter:
+        users = users.filter(profile__role_id=role_filter)
+
+    roles = Role.objects.all()
+
     context = {
         'users': users,
+        'roles': roles,
         'query': query,
         'current_staff_filter': staff_filter,
         'current_superuser_filter': superuser_filter,
         'current_active_filter': active_filter,
+        'current_role_filter': role_filter,
         'total_users': User.objects.count(),
         'total_groups': Group.objects.count(),
         'site_header': admin.site.site_header,
