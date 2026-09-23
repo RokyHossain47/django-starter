@@ -4,8 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Master Admin Panel{% endblock %}</title>
+    <title>{% block title %}{{ site_header_title|default:"Master Admin Panel" }}{% endblock %}</title>
     
+    {% if site_favicon_url %}
+    <link rel="icon" href="{{ site_favicon_url }}">
+    {% else %}
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    {% endif %}
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -716,8 +721,13 @@
     <!-- Top Django Header -->
     <header class="django-header">
         <div class="header-brand">
-            <a href="/admin/" style="color: var(--django-header-title); text-decoration: none;">
-                Master Admin Panel
+            <a href="/admin/" style="color: var(--django-header-title); text-decoration: none; display: inline-flex; align-items: center; gap: 10px;">
+                {% if site_logo_url %}
+                    <img src="{{ site_logo_url }}" alt="{{ site_header_title|default:'Master Admin Panel' }}" style="max-height: 32px; max-width: 160px; object-fit: contain; vertical-align: middle; border-radius: 3px;">
+                {% else %}
+                    <i class="fa-solid fa-gamepad" style="color: var(--django-accent-gold); font-size: 20px;"></i>
+                {% endif %}
+                <span>{{ site_header_title|default:"Master Admin Panel" }}</span>
             </a>
         </div>
         <div class="header-userlinks">

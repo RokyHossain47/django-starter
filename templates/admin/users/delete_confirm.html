@@ -1,0 +1,41 @@
+{% extends "admin/layouts/base.html" %}
+
+{% block title %}Delete User: {{ target_user.username }} | Master Admin Panel{% endblock %}
+
+{% block nav_users %}active{% endblock %}
+
+{% block breadcrumbs %}
+<a href="/admin/">Home</a> &rsaquo; <a href="/admin/users/">Users Management</a> &rsaquo; <span>Delete: {{ target_user.username }}</span>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); overflow: hidden;">
+    <div style="background-color: #fef2f2; border-bottom: 1px solid #fecaca; padding: 18px 24px; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+            <h2 style="margin: 0; font-size: 17px; font-weight: 700; color: #991b1b;">Confirm User Deletion</h2>
+            <div style="font-size: 12px; color: #b91c1c; margin-top: 2px;">This action is permanent and cannot be undone.</div>
+        </div>
+    </div>
+
+    <div style="padding: 24px;">
+        <p style="font-size: 14px; color: #334155; line-height: 1.6; margin: 0 0 18px 0;">
+            Are you sure you want to permanently delete the user account for <strong>{{ target_user.username }}</strong> ({{ target_user.email }})?
+        </p>
+
+        <form method="post" action="{% url 'custom_admin_user_delete' target_user.id %}">
+            {% csrf_token %}
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                <a href="/admin/users/" style="padding: 9px 18px; border-radius: 4px; font-size: 13px; font-weight: 600; color: #475569; text-decoration: none; background: #f1f5f9; border: 1px solid var(--border-dark);">
+                    Cancel
+                </a>
+                <button type="submit" style="background-color: #dc2626; color: #ffffff; border: none; padding: 9px 20px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-trash"></i> Yes, Delete User
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

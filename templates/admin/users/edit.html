@@ -1,0 +1,209 @@
+{% extends "admin/layouts/base.html" %}
+
+{% block title %}Edit User: {{ target_user.username }} | Master Admin Panel{% endblock %}
+
+{% block nav_users %}active{% endblock %}
+
+{% block breadcrumbs %}
+<a href="/admin/">Home</a> &rsaquo; <a href="/admin/users/">Users Management</a> &rsaquo; <span>Edit: {{ target_user.username }}</span>
+{% endblock %}
+
+{% block content %}
+<!-- Page Heading -->
+<div class="page-heading-row">
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--django-primary), var(--django-header-bg)); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+            <i class="fa-solid fa-user-pen"></i>
+        </div>
+        <div>
+            <h1 class="page-title" style="margin-bottom: 2px;">Edit User: {{ target_user.username }}</h1>
+            <div style="font-size: 12px; color: var(--text-muted);">Modify user profile, credentials, and access role</div>
+        </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        {% if perms.auth.delete_user or request.user.is_superuser %}
+        {% if target_user.pk != request.user.pk %}
+        <a href="{% url 'custom_admin_user_delete' target_user.id %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #ef4444; font-weight: 600; text-decoration: none; padding: 7px 14px; background: #fef2f2; border-radius: 4px; border: 1px solid #fecaca;">
+            <i class="fa-solid fa-trash"></i> Delete User
+        </a>
+        {% endif %}
+        {% endif %}
+        <a href="/admin/users/" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 7px 14px; background: #f1f5f9; border-radius: 4px; border: 1px solid var(--border-dark);">
+            <i class="fa-solid fa-arrow-left"></i> Back to Users List
+        </a>
+    </div>
+</div>
+
+<!-- Messages Display -->
+{% if messages %}
+<div style="margin-bottom: 20px;">
+    {% for message in messages %}
+    <div style="padding: 12px 16px; border-radius: 4px; margin-bottom: 10px; font-size: 13px; display: flex; align-items: center; gap: 10px; {% if message.tags == 'success' %}background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46;{% elif message.tags == 'error' %}background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b;{% else %}background-color: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af;{% endif %}">
+        {% if message.tags == 'success' %}
+        <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 15px;"></i>
+        {% elif message.tags == 'error' %}
+        <i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 15px;"></i>
+        {% else %}
+        <i class="fa-solid fa-circle-info" style="color: #3b82f6; font-size: 15px;"></i>
+        {% endif %}
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form method="post" action="{% url 'custom_admin_user_edit' target_user.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; margin-bottom: 24px;">
+
+        <!-- Left Column: Personal & Organization Details -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
+                <div style="background-color: var(--django-breadcrumbs-bg); color: #ffffff; padding: 12px 18px; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em;">
+                    <i class="fa-solid fa-id-badge" style="color: var(--django-accent-gold);"></i>
+                    <span>Account Information</span>
+                </div>
+
+                <div style="padding: 20px;">
+                    <!-- Username Field -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; text-transform: uppercase;">
+                            Username <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input type="text" name="username" value="{{ target_user.username }}" required style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc; font-weight: 600;">
+                    </div>
+
+                    <!-- Email Field -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; text-transform: uppercase;">
+                            Email Address <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input type="email" name="email" value="{{ target_user.email }}" required style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc; font-weight: 600;">
+                    </div>
+
+                    <!-- Names -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">First Name</label>
+                            <input type="text" name="first_name" value="{{ target_user.first_name }}" style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">Last Name</label>
+                            <input type="text" name="last_name" value="{{ target_user.last_name }}" style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc;">
+                        </div>
+                    </div>
+
+                    <!-- Organization & Phone -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">Company Name</label>
+                            <input type="text" name="company_name" value="{{ profile.company_name|default:'' }}" style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">Phone Number</label>
+                            <input type="text" name="phone" value="{{ profile.phone|default:'' }}" style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc;">
+                        </div>
+                    </div>
+
+                    <!-- Profile Avatar -->
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">Avatar</label>
+                        {% if profile.avatar %}
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                            <img src="{{ profile.avatar.url }}" alt="{{ target_user.username }}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color);">
+                            <label style="font-size: 12px; color: #ef4444; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="checkbox" name="remove_avatar" value="1"> Remove current avatar
+                            </label>
+                        </div>
+                        {% endif %}
+                        <input type="file" name="avatar" accept="image/*" style="font-size: 12px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Role & Security -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Role Assignment Box -->
+            <div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
+                <div style="background-color: var(--django-breadcrumbs-bg); color: #ffffff; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-shield-halved" style="color: var(--django-accent-gold);"></i>
+                        <span>Role Assignment</span>
+                    </div>
+                </div>
+
+                <div style="padding: 18px 20px;">
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; text-transform: uppercase;">
+                        Select Role
+                    </label>
+                    <select name="role_id" style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc; font-weight: 600; color: #1e293b;">
+                        <option value="">-- None (Standard User) --</option>
+                        {% for r in roles %}
+                        <option value="{{ r.id }}" {% if profile.role_id == r.id %}selected{% endif %}>
+                            {{ r.name }} ({{ r.permissions.count }} permissions)
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">
+                        Selecting a role will automatically sync this user's access permissions across all admin routes.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password Reset (Optional) -->
+            <div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
+                <div style="background-color: var(--django-breadcrumbs-bg); color: #ffffff; padding: 12px 18px; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em;">
+                    <i class="fa-solid fa-key" style="color: var(--django-accent-gold);"></i>
+                    <span>Change Password (Optional)</span>
+                </div>
+
+                <div style="padding: 18px 20px;">
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; text-transform: uppercase;">
+                        New Password
+                    </label>
+                    <input type="password" name="password" placeholder="Leave empty to keep current password" style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-dark); border-radius: 4px; outline: none; background-color: #f8fafc;">
+                    <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">Only fill this in if you want to reset the user's password.</div>
+                </div>
+            </div>
+
+            <!-- Status & Permissions Flags -->
+            <div style="background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
+                <div style="background-color: var(--django-breadcrumbs-bg); color: #ffffff; padding: 12px 18px; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em;">
+                    <i class="fa-solid fa-toggle-on" style="color: var(--django-accent-gold);"></i>
+                    <span>Account Status</span>
+                </div>
+
+                <div style="padding: 18px 20px; display: flex; flex-direction: column; gap: 12px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer;">
+                        <input type="checkbox" name="is_active" {% if target_user.is_active %}checked{% endif %}>
+                        <span>Active Account</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer;">
+                        <input type="checkbox" name="is_staff" {% if target_user.is_staff %}checked{% endif %}>
+                        <span>Staff Member (Can login to Admin Panel)</span>
+                    </label>
+                    {% if request.user.is_superuser %}
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #d97706; cursor: pointer;">
+                        <input type="checkbox" name="is_superuser" {% if target_user.is_superuser %}checked{% endif %}>
+                        <span>Superuser (Full Unrestricted Access)</span>
+                    </label>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Submit Bar -->
+    <div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 6px; padding: 16px 20px; display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+        <a href="/admin/users/" style="padding: 9px 18px; border-radius: 4px; font-size: 13px; font-weight: 600; color: #475569; text-decoration: none; background: #ffffff; border: 1px solid var(--border-dark);">
+            Cancel
+        </a>
+        <button type="submit" class="btn-action-primary" style="padding: 9px 24px; font-size: 13px;">
+            <i class="fa-solid fa-floppy-disk"></i> Save Changes
+        </button>
+    </div>
+</form>
+{% endblock %}

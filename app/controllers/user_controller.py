@@ -229,3 +229,127 @@ def users_list_view(request):
         'site_title': admin.site.site_title,
     }
     return render(request, 'admin/users/index.html', context)
+
+
+@staff_member_required(login_url='/admin/login/', redirect_field_name=None)
+def user_edit_view(request, user_id):
+    """
+    Edit an existing user, assign roles, update profile, and optionally reset password.
+    """
+    if not (request.user.is_superuser or request.user.has_perm('auth.change_user')):
+        raise PermissionDenied("You do not have permission to edit users.")
+
+    target_user = get_object_or_404(User, pk=user_id)
+    profile, _ = Profile.objects.get_or_create(user=target_user)
+    roles = Role.objects.all()
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        company_name = request.POST.get('company_name', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        role_id = request.POST.get('role_id', '').strip()
+
+        is_staff = request.POST.get('is_staff') == 'on'
+        is_superuser = request.POST.get('is_superuser') == 'on'
+        is_active = request.POST.get('is_active') == 'on'
+
+        if role_id:
+            is_staff = True
+
+        errors = []
+        if not username:
+            errors.append("Username is required.")
+        elif User.objects.filter(username=username).exclude(pk=target_user.pk).exists():
+            errors.append(f'Username "{username}" is already taken.')
+
+        if not email:
+            errors.append("Email address is mandatory.")
+        elif '@' not in email or '.' not in email:
+            errors.append("Please enter a valid email address.")
+
+        if password and len(password) < 6:
+            errors.append("New password must be at least 6 characters long.")
+
+        if errors:
+            for err in errors:
+                messages.error(request, err)
+        else:
+            try:
+                target_user.username = username
+                target_user.email = email
+                target_user.first_name = first_name
+                target_user.last_name = last_name
+                target_user.is_staff = is_staff
+                target_user.is_superuser = is_superuser
+                target_user.is_active = is_active
+
+                if password:
+                    target_user.set_password(password)
+
+                target_user.save()
+
+                profile.company_name = company_name
+                profile.phone = phone
+                if 'avatar' in request.FILES:
+                    profile.avatar = request.FILES['avatar']
+                elif request.POST.get('remove_avatar') == '1' and profile.avatar:
+                    profile.avatar.delete(save=False)
+                    profile.avatar = None
+
+                if role_id:
+                    try:
+                        role = Role.objects.get(id=role_id)
+                        profile.role = role
+                    except Role.DoesNotExist:
+                        profile.role = None
+                else:
+                    profile.role = None
+
+                profile.save()
+
+                messages.success(request, f'User "{target_user.username}" updated successfully!')
+                return redirect('custom_admin_users')
+            except Exception as e:
+                messages.error(request, f"Error updating user: {str(e)}")
+
+    context = {
+        'target_user': target_user,
+        'profile': profile,
+        'roles': roles,
+        'site_header': admin.site.site_header,
+        'site_title': admin.site.site_title,
+    }
+    return render(request, 'admin/users/edit.html', context)
+
+
+@staff_member_required(login_url='/admin/login/', redirect_field_name=None)
+def user_delete_view(request, user_id):
+    """
+    Safely delete a user account.
+    """
+    if not (request.user.is_superuser or request.user.has_perm('auth.delete_user')):
+        raise PermissionDenied("You do not have permission to delete users.")
+
+    target_user = get_object_or_404(User, pk=user_id)
+
+    if request.user.pk == target_user.pk:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('custom_admin_users')
+
+    if request.method == 'POST':
+        username = target_user.username
+        target_user.delete()
+        messages.success(request, f'User "{username}" was deleted successfully.')
+        return redirect('custom_admin_users')
+
+    context = {
+        'target_user': target_user,
+        'site_header': admin.site.site_header,
+        'site_title': admin.site.site_title,
+    }
+    return render(request, 'admin/users/delete_confirm.html', context)
+

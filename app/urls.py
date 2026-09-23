@@ -5,6 +5,8 @@ from app.controllers import (
     profile_view,
     users_list_view,
     user_add_view,
+    user_edit_view,
+    user_delete_view,
     settings_view,
     roles_list_view,
     role_add_view,
@@ -18,6 +20,8 @@ urlpatterns = [
     path('profile/', profile_view, name='custom_admin_profile'),
     path('users/add/', user_add_view, name='custom_admin_user_add'),
     path('auth/user/add/', user_add_view, name='custom_admin_auth_user_add'),
+    path('users/<int:user_id>/edit/', user_edit_view, name='custom_admin_user_edit'),
+    path('users/<int:user_id>/delete/', user_delete_view, name='custom_admin_user_delete'),
     path('users/', users_list_view, name='custom_admin_users'),
     path('roles/', roles_list_view, name='custom_admin_roles'),
     path('roles/add/', role_add_view, name='custom_admin_role_add'),
@@ -25,3 +29,4 @@ urlpatterns = [
     path('roles/<int:role_id>/delete/', role_delete_view, name='custom_admin_role_delete'),
     path('settings/', settings_view, name='custom_admin_settings'),
 ]
+

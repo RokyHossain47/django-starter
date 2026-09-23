@@ -105,7 +105,7 @@
             <!-- Grouped Permission Cards -->
             <div style="padding: 18px; display: flex; flex-direction: column; gap: 16px;">
                 {% for group in grouped_permissions %}
-                <div class="perm-group-card" id="group-{{ group.id }}" style="border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; background-color: #ffffff;">
+                <div class="perm-group-card" id="group-card-{{ forloop.counter }}" style="border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; background-color: #ffffff;">
                     <div style="background-color: #f1f5f9; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color);">
                         <div style="font-size: 13px; font-weight: 700; color: #334155; display: flex; align-items: center; gap: 8px;">
                             <i class="fa-solid fa-folder-tree" style="color: var(--django-primary); font-size: 12px;"></i>
@@ -113,10 +113,10 @@
                             <span style="font-size: 11px; font-weight: normal; color: var(--text-dim);">({{ group.perms|length }} permissions)</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
-                            <button type="button" onclick="toggleGroupPerms('{{ group.id }}', true)" style="background: #ffffff; border: 1px solid var(--border-dark); padding: 2px 8px; border-radius: 3px; font-size: 11px; color: #475569; cursor: pointer; font-weight: 600;">
+                            <button type="button" id="group-btn-{{ forloop.counter }}" onclick="toggleGroupPerms({{ forloop.counter }})" style="background: #ffffff; border: 1px solid var(--border-dark); padding: 3px 10px; border-radius: 4px; font-size: 11.5px; color: #475569; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s ease;">
                                 Select Group
                             </button>
-                            <button type="button" onclick="toggleGroupPerms('{{ group.id }}', false)" style="background: #ffffff; border: 1px solid var(--border-dark); padding: 2px 8px; border-radius: 3px; font-size: 11px; color: #475569; cursor: pointer; font-weight: 600;">
+                            <button type="button" onclick="clearGroupPerms({{ forloop.counter }})" style="background: #ffffff; border: 1px solid var(--border-dark); padding: 3px 8px; border-radius: 4px; font-size: 11.5px; color: #64748b; cursor: pointer; font-weight: 600;">
                                 Clear
                             </button>
                         </div>
@@ -125,7 +125,7 @@
                     <div style="padding: 12px 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px;">
                         {% for perm in group.perms %}
                         <label class="perm-item" style="display: flex; align-items: flex-start; gap: 8px; padding: 6px 8px; border-radius: 4px; cursor: pointer; transition: background 0.1s ease; border: 1px solid transparent;" onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor='transparent'">
-                            <input type="checkbox" name="permissions" value="{{ perm.id }}" class="perm-checkbox group-item-{{ group.id }}" onchange="updateCounter()" {% if perm.id in selected_perm_ids %}checked{% endif %} style="margin-top: 2px; accent-color: var(--django-primary); cursor: pointer; width: 15px; height: 15px;">
+                            <input type="checkbox" name="permissions" value="{{ perm.id }}" class="perm-checkbox group-item-{{ forloop.parentloop.counter }}" onchange="updateCounter(); updateGroupBtnState({{ forloop.parentloop.counter }});" {% if perm.id in selected_perm_ids %}checked{% endif %} style="margin-top: 2px; accent-color: var(--django-primary); cursor: pointer; width: 15px; height: 15px;">
                             <div>
                                 <div class="perm-name" style="font-size: 12.5px; font-weight: 600; color: #1e293b;">
                                     {{ perm.name }}
@@ -148,7 +148,8 @@
 <script>
 function updateCounter() {
     const checkedCount = document.querySelectorAll('.perm-checkbox:checked').length;
-    document.getElementById('selected-counter').innerText = checkedCount;
+    const counter = document.getElementById('selected-counter');
+    if (counter) counter.innerText = checkedCount;
 }
 
 function selectAllPerms(select) {
@@ -156,13 +157,53 @@ function selectAllPerms(select) {
         cb.checked = select;
     });
     updateCounter();
+    document.querySelectorAll('.perm-group-card').forEach((card, index) => {
+        updateGroupBtnState(index + 1);
+    });
 }
 
-function toggleGroupPerms(groupId, select) {
-    document.querySelectorAll('.group-item-' + groupId).forEach(cb => {
-        cb.checked = select;
+function toggleGroupPerms(groupIndex) {
+    const checkboxes = document.querySelectorAll('.group-item-' + groupIndex);
+    if (!checkboxes.length) return;
+    
+    // Check if all are currently checked
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    
+    // Toggle: if all checked -> uncheck all; otherwise check all
+    checkboxes.forEach(cb => {
+        cb.checked = !allChecked;
+    });
+    
+    updateCounter();
+    updateGroupBtnState(groupIndex);
+}
+
+function clearGroupPerms(groupIndex) {
+    const checkboxes = document.querySelectorAll('.group-item-' + groupIndex);
+    checkboxes.forEach(cb => {
+        cb.checked = false;
     });
     updateCounter();
+    updateGroupBtnState(groupIndex);
+}
+
+function updateGroupBtnState(groupIndex) {
+    const btn = document.getElementById('group-btn-' + groupIndex);
+    const checkboxes = document.querySelectorAll('.group-item-' + groupIndex);
+    if (!btn || !checkboxes.length) return;
+    
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    if (allChecked) {
+        btn.innerHTML = '<i class="fa-solid fa-check-double" style="color: #0284c7; font-size: 11px;"></i> Deselect Group';
+        btn.style.backgroundColor = '#e0f2fe';
+        btn.style.color = '#0369a1';
+        btn.style.borderColor = '#7dd3fc';
+    } else {
+        btn.innerHTML = 'Select Group';
+        btn.style.backgroundColor = '#ffffff';
+        btn.style.color = '#475569';
+        btn.style.borderColor = 'var(--border-dark)';
+    }
 }
 
 function filterPermissions(query) {
@@ -182,6 +223,11 @@ function filterPermissions(query) {
     });
 }
 
-document.addEventListener('DOMContentLoaded', updateCounter);
+document.addEventListener('DOMContentLoaded', () => {
+    updateCounter();
+    document.querySelectorAll('.perm-group-card').forEach((card, index) => {
+        updateGroupBtnState(index + 1);
+    });
+});
 </script>
 {% endblock %}

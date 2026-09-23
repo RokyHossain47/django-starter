@@ -87,7 +87,7 @@
                         {% endif %}
                         <div>
                             {% if perms.auth.change_user or request.user.is_superuser %}
-                            <a href="{% url 'admin:auth_user_change' u.id %}" style="font-weight: 700; color: var(--django-primary); display: block;">
+                            <a href="{% url 'custom_admin_user_edit' u.id %}" style="font-weight: 700; color: var(--django-primary); display: block;">
                                 {{ u.username }}
                             </a>
                             {% else %}
@@ -125,15 +125,17 @@
                 </td>
                 <td style="text-align: right;">
                     {% if perms.auth.change_user or request.user.is_superuser %}
-                    <a href="{% url 'admin:auth_user_change' u.id %}"
+                    <a href="{% url 'custom_admin_user_edit' u.id %}"
                         style="margin-right: 10px; color: var(--django-primary); font-weight: 600;">
                         <i class="fa-solid fa-pen"></i> Edit
                     </a>
                     {% endif %}
                     {% if perms.auth.delete_user or request.user.is_superuser %}
-                    <a href="{% url 'admin:auth_user_delete' u.id %}" style="color: #dc2626; font-weight: 600;">
+                    {% if u.pk != request.user.pk %}
+                    <a href="{% url 'custom_admin_user_delete' u.id %}" style="color: #dc2626; font-weight: 600;">
                         <i class="fa-solid fa-trash"></i>
                     </a>
+                    {% endif %}
                     {% endif %}
                 </td>
             </tr>
